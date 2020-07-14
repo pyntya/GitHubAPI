@@ -24,8 +24,8 @@ namespace GitHubAPI
 
         public IEnumerable<string> GetCategories()
         {
-            var pattern = @$"{GitHubHttpClient.GitHubUri}\/?(?<sectionName>\w*)";
-            return _endpointsDictionary.Select(x => Regex.Match(x.Value, pattern).Groups["sectionName"].Value);
+            var wordPattern = @$"\w*";
+            return _endpointsDictionary.Select(x => Regex.Match(x.Value.Split("/")[3], wordPattern).Value);
         }
 
         public IEnumerable<IGrouping<string, string>> GetGroupedCategories()
