@@ -2,7 +2,6 @@
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 
 namespace GitHubAPI
@@ -65,9 +64,6 @@ namespace GitHubAPI
             + "* \"NoAuthentication\" parameter for calling API without authentication" + Environment.NewLine
             + "* \"Basic\" parameter followed by credentials in format \"user:password\" for calling API using 'Basic' authentication" + Environment.NewLine
             + "* \"OAuth2\" parameter followed by \"OAuth token\" for calling API using 'OAuth2' authentication";
-        private static void WriteHelpMessage()
-        {
-            Console.WriteLine(HelpMessage);
-        }
+        private static void WriteHelpMessage() => Console.WriteLine(HelpMessage);
     }
 }
