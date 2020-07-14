@@ -1,5 +1,7 @@
 ﻿using GitHubAPI.Extensions;
+using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
@@ -36,16 +38,27 @@ namespace GitHubAPI
                 return;
             }
 
-            var context = new GitHubApiContext(authentication);
+            var client = new GitHubClient(authentication);
+            var message = client.SendGetRequest("/").Result;
+            if (message.IsSuccessStatusCode)
+            {
+                var context = new GitHubApiEndpointsContext(JsonConvert.DeserializeObject<Dictionary<string, string>>(message.Content.ReadAsStringAsync().Result));
+                Console.WriteLine(GetNumberOfEndpointsReultString(context.GetEndpointsCount()));
+                Console.WriteLine(GetCategoriesOrderedByCountDescendingResultString(context.GetGroupedCategoriesOrderedByCountDescending()));
+                Console.WriteLine(GetQueriesResultString(context.GetQueries()));
+            }
+            else
+            {
+                Console.WriteLine(message.ToString());
+                return;
+            }
 
-            Console.WriteLine(GetNumberOfEndpointsReultString(context));
-            Console.WriteLine(GetCategoriesOrderedByCountDescendingResultString(context));
-            Console.WriteLine(GetQueriesResultString(context));
+            
         }
 
-        private static string GetNumberOfEndpointsReultString(GitHubApiContext context) => $"1. Number of endpoints: {context.GetEndpointsCount()}";
-        private static string GetCategoriesOrderedByCountDescendingResultString(GitHubApiContext context) => $"2. {string.Join(", ", context.GetGroupedCategoriesOrderedByCountDescending().Select(x => $"{x.Key}: {x.Count()}"))}";
-        private static string GetQueriesResultString(GitHubApiContext context) => $"3. {string.Join(Environment.NewLine, context.GetQueries().Select(x => x.Value))}";
+        private static string GetNumberOfEndpointsReultString(int count) => $"1. Number of endpoints: {count}";
+        private static string GetCategoriesOrderedByCountDescendingResultString(IOrderedEnumerable<IGrouping<string, string>> categories) => $"2. {string.Join(", ", categories.Select(x => $"{x.Key}: {x.Count()}"))}";
+        private static string GetQueriesResultString(IEnumerable<KeyValuePair<string, string>> queries) => $"3. {string.Join(Environment.NewLine, queries.Select(x => x.Value))}";
         private static string ErrorMessage => $"Wrong parameters. {HelpMessage}";
         private static string HelpMessage => "Possible parameter values:" + Environment.NewLine
             + "* no parameters for calling API without authentication" + Environment.NewLine
